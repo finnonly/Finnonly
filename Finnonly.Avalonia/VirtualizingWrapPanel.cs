@@ -603,23 +603,32 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPoints
                 if (IsEffectivelyVisible && Bounds.Width > 0 && Bounds.Height > 0)
                 {
                     var itemsCount = Items.Count;
-                    if (itemsCount > 0)
+
+                    // 🔥 关键修复：空集合时也要清空所有元素
+                    if (itemsCount == 0)
                     {
-                        RecalculateLayout(itemsCount, Bounds.Width);
-
-                        var currentViewport = _effectiveViewport;
-                        if (currentViewport.Width <= 0 || currentViewport.Height <= 0)
-                        {
-                            currentViewport = new Rect(0, 0, Bounds.Width, Bounds.Height);
-                        }
-
-                        // 🔥 关键：重置视口状态，触发 isWidthChanged=true
-                        // 这会导致 RecycleAllElements 被调用，从而重建所有元素
-                        _effectiveViewport = new Rect(0, -1, 0, 0);
-
-                        ProcessViewportChange(currentViewport, true);  // 强制作为宽度变化处理
+                        RecycleAllElements();
+                        _panelSize = new Size(0, 0);
+                        InvalidateMeasure();
+                        InvalidateArrange();
                         UpdateLayout();
+                        return;
                     }
+
+                    RecalculateLayout(itemsCount, Bounds.Width);
+
+                    var currentViewport = _effectiveViewport;
+                    if (currentViewport.Width <= 0 || currentViewport.Height <= 0)
+                    {
+                        currentViewport = new Rect(0, 0, Bounds.Width, Bounds.Height);
+                    }
+
+                    // 🔥 关键：重置视口状态，触发 isWidthChanged=true
+                    // 这会导致 RecycleAllElements 被调用，从而重建所有元素
+                    _effectiveViewport = new Rect(0, -1, 0, 0);
+
+                    ProcessViewportChange(currentViewport, true);  // 强制作为宽度变化处理
+                    UpdateLayout();
                 }
             }
             catch { }
@@ -694,5 +703,6 @@ public sealed class VirtualizingWrapPanel : VirtualizingPanel, IScrollSnapPoints
 
     #endregion
 }
+
 
 
