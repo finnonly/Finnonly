@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Finnonly.Avalonia/Finnonly.Avalonia.csproj" />
+  <Project Path="Finnonly.SourceGenerator/Finnonly.SourceGenerator.csproj" />
+</Solution>
