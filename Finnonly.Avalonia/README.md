@@ -7,14 +7,15 @@ Avalonia extensions for event binding using Source Generators + High Performance
 - **v:Event** - 简洁的事件绑定标记扩展
 - **v:RoutedEvent** - 绑定路由事件到 ViewModel
 - **v:RawEvent** - 处理非 EventArgs 事件（如 WindowClosing）
-- **Attributes** - EventBind, CopyTo, Compare, Table, Column, PrimaryKey, etc.
+- **Attributes** - EventBind, CopyTo, Compare, Table, Column, PrimaryKey, SqliteConfig, etc.
+- **SQLite Source Generator** - 编译时生成 DbContext + 迁移管理器，支持 11 项 PRAGMA 配置
 - **VirtualizingWrapPanel** - 高性能虚拟化 WrapPanel（.NET 10 / C# 12+ 优化）
 
 ## Installation
 
 ```xml
-<PackageReference Include="Finnonly.Avalonia" Version="1.0.6" />
-<PackageReference Include="Finnonly.SourceGenerator" Version="1.0.6" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+<PackageReference Include="Finnonly.Avalonia" Version="1.0.10" />
+<PackageReference Include="Finnonly.SourceGenerator" Version="1.0.10" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 ```
 
 ---
@@ -145,6 +146,83 @@ public void OnWindowClosing()
 {
     // 可以取消关闭
 }
+```
+
+---
+
+## SQLite 源生成器
+
+编译时自动生成 SQLite 数据库上下文（`SqliteDbContext`）和迁移管理器（`SqliteMigrationManager`），零反射、零手写 SQL。
+
+### 📦 定义实体
+
+```csharp
+[Table("users")]
+[Migration(1)]
+public class User
+{
+    [PrimaryKey(true)]
+    public int Id { get; set; }
+
+    [Column("user_name")]
+    public string Name { get; set; } = string.Empty;
+
+    public string? Email { get; set; }
+
+    [Ignore]
+    public string DisplayName => $"{Name} <{Email}>";
+}
+```
+
+### 🔧 PRAGMA 配置
+
+通过 `[assembly: SqliteConfig]` 属性配置数据库性能参数，不配置则使用性能优化的默认值：
+
+```csharp
+// 默认配置（开箱即用，已针对性能优化）
+// 无需任何代码
+
+// 自定义配置示例
+[assembly: SqliteConfig(
+    JournalMode = "WAL",          // 日志模式（默认 WAL）
+    Synchronous = "NORMAL",       // 同步模式（默认 NORMAL）
+    CacheSize = -8000,            // 缓存 8MB（默认 -8000）
+    TempStore = "MEMORY",         // 临时存储（默认 MEMORY）
+    MmapSize = 536870912,         // 内存映射 512MB（默认）
+    BusyTimeout = 5000,           // 忙等待 5s（默认 5000）
+    ForeignKeys = true,           // 外键约束（默认 true）
+    AutoVacuum = "INCREMENTAL",   // 自动回收（默认 INCREMENTAL）
+    WalAutoCheckpoint = 2000,     // WAL 检查点间隔（默认 2000）
+    PageSize = 4096,              // 页大小（默认 4096）
+    SecureDelete = false           // 安全删除（默认 false）
+)]
+```
+
+### 🚀 自动生成的 API
+
+```csharp
+using var db = new SqliteDbContext("Data Source=app.db");
+
+// CRUD
+await db.InsertUserAsync(user);
+var user = await db.GetUserByIdAsync(1);
+var all = await db.GetAllUserAsync();
+await db.UpdateUserAsync(user);
+await db.DeleteUserAsync(1);
+
+// Upsert
+await db.InsertOrUpdateUserAsync(user);
+await db.BulkInsertOrUpdateUserAsync(users);
+
+// 条件查询
+var result = await db.GetUserByConditionAsync(
+    "user_name = @name", 
+    new[] { new SqliteParameter("@name", "finn") });
+
+// 分页
+var page = await db.GetUserListByConditionAsync(
+    "1=1", Array.Empty<SqliteParameter>(),
+    orderBy: "Id DESC", limit: 20, offset: 0);
 ```
 
 ---
