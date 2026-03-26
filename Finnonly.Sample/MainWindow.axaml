@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="using:Finnonly.Avalonia"
+        xmlns:local="using:Finnonly.Sample"
+        x:Class="Finnonly.Sample.MainWindow"
+        x:DataType="local:MainViewModel"
+        Title="Finnonly Sample - Avalonia 12 Test"
+        Width="600" Height="500"
+        Closing="{v:RawEvent OnWindowClosing}">
+
+    <Window.DataContext>
+        <local:MainViewModel />
+    </Window.DataContext>
+
+    <DockPanel Margin="16">
+        <!-- 顶部：事件绑定测试 -->
+        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,16">
+            <TextBlock Text="事件绑定测试" FontSize="18" FontWeight="Bold" />
+            <TextBlock Text="{Binding Message}" FontSize="14" />
+            <Button Content="RoutedEvent 无参绑定" Click="{v:RoutedEvent OnButtonClick}" />
+            <Button Content="RoutedEvent sender+args"
+                    Click="{v:RoutedEvent OnButtonClickWithArgs, '!sender', '!args'}" />
+            <Button Content="RoutedEvent 绑定参数"
+                    Click="{v:RoutedEvent OnButtonClickWithBinding, {Binding BoundParam}}" />
+            <Button Content="!static 静态对象绑定"
+                    Click="{v:RoutedEvent OnStaticAction, '!static', {x:Static local:StaticService.Instance}}" />
+            <Button Content="!static 带参数"
+                    Click="{v:RoutedEvent OnStaticActionWithParam, '!static', {x:Static local:StaticService.Instance}, 'hello-static'}" />
+        </StackPanel>
+
+        <!-- 底部：VirtualizingWrapPanel 测试 -->
+        <StackPanel DockPanel.Dock="Top" Spacing="4">
+            <TextBlock Text="VirtualizingWrapPanel 测试" FontSize="18" FontWeight="Bold" />
+            <TextBlock Text="下方使用虚拟化 WrapPanel 展示项目" FontSize="12" Foreground="Gray" />
+        </StackPanel>
+
+        <ItemsControl ItemsSource="{Binding Items}" Margin="0,8,0,0">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <v:VirtualizingWrapPanel EstimatedItemWidth="120"
+                                             EstimatedItemHeight="40"
+                                             ItemHorizontalSpacing="4"
+                                             ItemVerticalSpacing="4" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="#2196F3" CornerRadius="4" Padding="8,4">
+                        <TextBlock Text="{Binding}" Foreground="White" VerticalAlignment="Center" />
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </DockPanel>
+</Window>

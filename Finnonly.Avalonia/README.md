@@ -14,9 +14,13 @@ Avalonia extensions for event binding using Source Generators + High Performance
 ## Installation
 
 ```xml
-<PackageReference Include="Finnonly.Avalonia" Version="1.0.10" />
-<PackageReference Include="Finnonly.SourceGenerator" Version="1.0.10" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+<PackageReference Include="Finnonly.Avalonia" Version="1.0.12-rc1" />
+<PackageReference Include="Finnonly.SourceGenerator" Version="1.0.12-rc1" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 ```
+
+> **Avalonia 12 支持**：从 1.0.11 开始，Finnonly 支持 Avalonia 12.0.0-rc1+。
+> Avalonia 12 默认启用编译型绑定（Compiled Bindings），XAML 中需要声明 `x:DataType` 指令。
+> 内部 API 变更：`IBinding` → `BindingBase`，`BindingOperations.Apply()` → `AvaloniaObject.Bind()`。
 
 ---
 
@@ -34,10 +38,10 @@ Avalonia extensions for event binding using Source Generators + High Performance
 ### 📦 基本用法
 
 ```xml
-<Window xmlns:v="clr-namespace:Finnonly.Avalonia;assembly=Finnonly.Avalonia"
+<Window xmlns:v="using:Finnonly.Avalonia"
+        x:DataType="local:MainViewModel"
         Loaded="{v:RoutedEvent OnLoaded}"
-        Closing="{v:RawEvent OnClosing}"
-        Closed="{v:Event OnClosed}">
+        Closing="{v:RawEvent OnClosing}">
     
     <StackPanel>
         <Button Content="点击" Click="{v:RoutedEvent OnButtonClick}"/>
@@ -64,12 +68,6 @@ public partial class MainViewModel : ViewModelBase
     public void OnClosing()
     {
         // 窗口关闭前
-    }
-
-    [EventBind]
-    public void OnClosed()
-    {
-        // 窗口关闭
     }
 
     [EventBind]
@@ -243,13 +241,14 @@ var page = await db.GetUserListByConditionAsync(
 ### 📦 基本用法
 
 ```xml
-<Window xmlns:controls="using:YourNamespace.Controls">
+<Window xmlns:v="using:Finnonly.Avalonia"
+        x:DataType="local:MainViewModel">
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" 
                   VerticalScrollBarVisibility="Auto">
         <ItemsControl ItemsSource="{Binding Items}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <controls:VirtualizingWrapPanel 
+                    <v:VirtualizingWrapPanel 
                         EstimatedItemWidth="200"
                         EstimatedItemHeight="300"
                         ItemHorizontalSpacing="8"
@@ -293,7 +292,7 @@ var page = await db.GetUserListByConditionAsync(
 
 ```csharp
 // XAML
-<controls:VirtualizingWrapPanel 
+<v:VirtualizingWrapPanel 
     x:Name="VPanel"
     HasMoreItems="True"/>
 

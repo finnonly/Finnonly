@@ -98,7 +98,7 @@ public class CopyToCompareSourceGenerator : IIncrementalGenerator
             if (classInfo == null) continue;
 
             var source = GenerateSource(classInfo);
-            context.AddSource($"{classInfo.ClassName}.g.cs", source);
+            context.AddSource($"CopyTo.{classInfo.ClassName}.g.cs", source);
         }
     }
 

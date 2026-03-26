@@ -8,7 +8,6 @@
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Data;
-using Avalonia.Data.Core;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 
@@ -49,7 +48,7 @@ public abstract class EventBindBase(string name)
         for (var i = 0; i < args.Length; i++)
         {
             var arg = args[i];
-            _args.Add(arg is IBinding binding ? new BindingHelper(binding) : arg);
+            _args.Add(arg is BindingBase binding ? new BindingHelper(binding) : arg);
         }
     }
 
@@ -301,9 +300,9 @@ internal sealed class BindingHelper : StyledElement
 
     private object? lastDataContext;
 
-    public BindingHelper(IBinding binding)
+    public BindingHelper(BindingBase binding)
     {
-        UpdateBinding(binding);
+        Bind(ValueProperty, binding);
     }
 
     public object Evaluate(object? dataContext)
@@ -317,13 +316,4 @@ internal sealed class BindingHelper : StyledElement
         return GetValue(ValueProperty);
     }
 
-    private void UpdateBinding(IBinding binding)
-    {
-#pragma warning disable CS0618 // Type or member is obsolete
-        var ib = binding.Initiate(this, ValueProperty)
-                 ?? throw new InvalidOperationException("Unable to create binding");
-
-        BindingOperations.Apply(this, ValueProperty, ib);
-#pragma warning restore CS0618
-    }
 }

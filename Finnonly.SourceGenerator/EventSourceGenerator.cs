@@ -17,7 +17,7 @@ namespace Finnonly.SourceGenerator;
 [Generator(LanguageNames.CSharp)]
 public class EventSourceGenerator : IIncrementalGenerator
 {
-    private const string GeneratorName = "VEventHelper";
+    private const string GeneratorName = "Event";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

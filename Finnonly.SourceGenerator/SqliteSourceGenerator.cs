@@ -289,7 +289,7 @@ public class SqliteSourceGenerator : IIncrementalGenerator
         var validEntities = entities.Where(e => e != null).Cast<EntityInfo>().ToList();
 
         var source = BuildDbContextCode(validEntities, config);
-        context.AddSource("SqliteDbContext.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource("Sqlite.DbContext.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 
     private void GenerateMigrationManager(SourceProductionContext context, ImmutableArray<EntityInfo?> entities)
@@ -299,7 +299,7 @@ public class SqliteSourceGenerator : IIncrementalGenerator
         var validEntities = entities.Where(e => e != null).Cast<EntityInfo>().ToList();
 
         var source = BuildMigrationManagerCode(validEntities);
-        context.AddSource("SqliteMigrationManager.g.cs", SourceText.From(source, Encoding.UTF8));
+        context.AddSource("Sqlite.Migration.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 
     private string BuildDbContextCode(List<EntityInfo> entities, SqliteConfig config)

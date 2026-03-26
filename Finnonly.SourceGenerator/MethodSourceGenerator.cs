@@ -161,7 +161,7 @@ public sealed class MethodInvokerGenerator : IIncrementalGenerator
                           }
                           """);
 
-        context.AddSource("MethodDispatcher.g.cs", source.ToString());
+        context.AddSource("Method.Dispatcher.g.cs", source.ToString());
     }
 
     private static void GenerateMethodInvoker(StringBuilder source, MethodInfo method)
